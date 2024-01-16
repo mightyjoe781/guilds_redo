@@ -1,6 +1,13 @@
 local MP = minetest.get_modpath("guilds_redo")
--- global variable for storing mod data
-guilds = {}
+
+guilds = {
+    -- default_color for the new guilds
+    default_color = minetest.settings:get("guilds.default_color") or "#57F287",
+    -- xp costs for the mod
+	join_xp = tonumber(minetest.settings:get("guilds.join_xp") or 50000),
+	create_xp = tonumber(minetest.settings:get("guilds.create_xp") or 200000),
+}
+
 
 dofile(MP.."/api.lua")
 dofile(MP.."/chatcmd.lua")

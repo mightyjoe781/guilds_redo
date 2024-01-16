@@ -22,13 +22,12 @@ minetest.register_chatcommand("join_guild", {
         end
 
         if minetest.get_modpath("xp_redo") then
-            local xp_required = 50000
             local player_xp = xp_redo.get_xp(name)
-            if player_xp < xp_required then
-                return false, "You don't have enough xp to join guilds. Required xp: "..(xp_required - player_xp)
+            if player_xp < guilds.join_xp then
+                return false, "You don't have enough xp to join guilds. Required xp: "..(guilds.join_xp - player_xp)
             else
                 -- Deduct xp
-                xp_redo.add_xp(name, -xp_required)
+                xp_redo.add_xp(name, -guilds.join_xp)
             end
         end
 
@@ -139,13 +138,12 @@ minetest.register_chatcommand("create_guild", {
 
         if minetest.get_modpath("xp_redo") then
             -- Check if the player has enough xp or guild_priv
-            local xp_required = 200000 -- Set the required xp amount or adjust as needed
             local player_xp = xp_redo.get_xp(name)
-            if player_xp < xp_required then
-                return false, "You don't have enough xp to join guilds. Required xp: "..(xp_required - player_xp)
+            if player_xp < guilds.create_xp then
+                return false, "You don't have enough xp to join guilds. Required xp: "..(guilds.create_xp - player_xp)
             else
                 -- Deduct xp
-                xp_redo.add_xp(name, -xp_required)
+                xp_redo.add_xp(name, -guilds.create_xp )
             end
         end
 

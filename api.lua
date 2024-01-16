@@ -42,7 +42,7 @@ function guilds.create_guild(gname, owner, color)
         color = "#57F287"
     end
     -- create a new guild table, with owner being the first member
-    guilds.save_data(gname, {owner = owner, leader = owner, members = {owner}, color = color or "#57F287"})
+    guilds.save_data(gname, {owner = owner, leader = owner, members = {owner}, color = color or guilds.default_color})
     -- add to the guilds table
     local glist = guilds.get_data("guilds")
     glist[gname] = true
