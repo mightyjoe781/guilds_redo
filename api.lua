@@ -39,6 +39,7 @@ function guilds.init(owner, leader, members, color)
         owner = owner,
         leader = leader,
         members = members or {},
+        requests = {},
         color = color or guilds.default_color
     }
 end

@@ -229,8 +229,19 @@ minetest.register_chatcommand("remove_guild", {
             return false, "You don't have the privilege to remove this guild"
         end
 
+        local guild_data = guilds.get_guild(guild_name)
         -- Remove the guild
         if guilds.remove_guild(guild_name) then
+            -- Remove "guild" attribute from all members
+            if guild_data then
+                for _, member in ipairs(guild_data.members) do
+                    local member_player = minetest.get_player_by_name(member)
+                    if member_player then
+                        local meta = member_player:get_meta()
+                        meta:set_string("guild", "")
+                    end
+                end
+            end
             return true, "Guild '" .. guild_name .. "' has been removed"
         else
             return false, "Failed to remove the guild"
