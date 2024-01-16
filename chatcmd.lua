@@ -198,7 +198,13 @@ minetest.register_chatcommand("guild_info", {
 
         local member_list = table.concat(guild_data.members, ", ")
 
-        return true, "Guild Name: " .. guild_name .. "\nMembers: " .. (member_list ~= "" and member_list or "None").. "\nColor: "..guild_data.color
+        local guild_info = string.format("Guild Name: %s\nMembers: %s\nColor: %s",
+        guild_name,
+        (member_list ~= "" and member_list or "None"),
+        guild_data.color
+    )
+    return true, guild_info
+
     end,
 })
 -- Chat command to remove a guild

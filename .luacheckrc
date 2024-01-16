@@ -5,22 +5,13 @@ exclude_files = {".luacheckrc"}
 globals = {
 	"minetest",
 	"prismo",
-	"default",
-	"travelnet",
-	"sethome",
-	"minetest",
-	"unified_inventory",
-	"stamina",
-	"bonemeal",
-	"mobs",
-	"farming",
-	"protector"
+	"default"
 }
 
 read_globals = {
 	-- Stdlib
 	string = {fields = {"split"}},
-	table = {fields = {"copy", "getn"}},
+	table = {fields = {"copy", "getn", "indexof"}},
 
     -- Builtin
     "vector", "ItemStack",
