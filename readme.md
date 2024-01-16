@@ -13,4 +13,5 @@
 TODO :
 
 * extend api.lua to have gulid store more metadata
-* Add a random colorization to guild names while writing guild colors or maybe approach a fixed coloration for each guild
+* add a random colorization to guild names while writing guild colors or maybe approach a fixed coloration for each guild
+* add a gui to easily manage guild
