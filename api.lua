@@ -34,15 +34,19 @@ function guilds.get_all_guilds()
     return guild_names
 end
 
--- create a specific guild by name
-function guilds.create_guild(gname, owner, color)
+function guilds.init(owner, leader, members, color)
+    return {
+        owner = owner,
+        leader = leader,
+        members = members or {},
+        color = color or guilds.default_color
+    }
+end
 
-    -- Check if a valid color is passed
-    if color and not color:match("^#%x%x%x%x%x%x$") then
-        color = "#57F287"
-    end
+-- create a specific guild by name
+function guilds.create_guild(gname, guildData)
     -- create a new guild table, with owner being the first member
-    guilds.save_data(gname, {owner = owner, leader = owner, members = {owner}, color = color or guilds.default_color})
+    guilds.save_data(gname, guildData)
     -- add to the guilds table
     local glist = guilds.get_data("guilds")
     glist[gname] = true
@@ -77,13 +81,20 @@ end
 -- Function to update a guild
 function guilds.update_guild(gname, newGuildData)
     local glist = guilds.get_data("guilds")
-    if not glist and not glist[gname] then
+    if not glist or not glist[gname] then
         return false  -- Guild not found
     end
+
+    local oldGuildData = guilds.get_data(gname)
+    for key, value in pairs(newGuildData) do
+        oldGuildData[key] = value
+    end
+
     -- Update the guild data
-    guilds.save_data(gname, newGuildData)
+    guilds.save_data(gname, oldGuildData)
     return true  -- Guild successfully updated
 end
+
 
 -- Function to add a member to a guild
 function guilds.add_member(gname, member)
@@ -109,9 +120,19 @@ function guilds.remove_member(gname, member)
     table.remove(guildData.members, index)
     guilds.save_data(gname, guildData)
 
+    -- Check if the owner is leaving
+    local ownerLeaving = false
+    if guildData.owner == member then
+        ownerLeaving = true
+    end
+
     -- Check if the guild is now empty, if so, delete the guild
     if #guildData.members == 0 then
         guilds.remove_guild(gname)
+    elseif ownerLeaving then
+        -- If the owner leaves, assign the ownership to the next member in the list
+        guildData.owner = guildData.members[1]
+        guilds.save_data(gname, guildData)
     end
 
     return true  -- Member successfully removed

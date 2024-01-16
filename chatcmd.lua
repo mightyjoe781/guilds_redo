@@ -79,7 +79,7 @@ minetest.register_chatcommand("gm", {
 
         local meta = player:get_meta()
         local current_guild = meta:get_string("guild")
-        if not current_guild then
+        if not current_guild or current_guild == "" then
             return false, "You are not a member of any guild"
         end
 
@@ -118,6 +118,10 @@ minetest.register_chatcommand("create_guild", {
         local guild_name, color = param:match("(%S+)%s*(%S*)")
         color = color ~= "" and color or nil
 
+        if not guild_name then
+            return false, "Invalid parameters. Usage: /create_guild <guild_name> [color]"
+        end
+
         local meta = player:get_meta()
         local current_guild = meta:get_string("guild")
         if current_guild and current_guild ~= "" then
@@ -135,6 +139,11 @@ minetest.register_chatcommand("create_guild", {
             return false, "Invalid color format. Please use a valid hexadecimal color (e.g., #57F287)"
         end
 
+        -- choose a random color from palette
+        if color == nil then
+            color = guilds.color_palette[math.random(#guilds.color_palette)]
+        end
+
 
         if minetest.get_modpath("xp_redo") then
             -- Check if the player has enough xp or guild_priv
@@ -148,7 +157,7 @@ minetest.register_chatcommand("create_guild", {
         end
 
         -- Create the guild
-        guilds.create_guild(guild_name, name, color)
+        guilds.create_guild(guild_name, guilds.init(name, name, {name}, color))
 
         -- Update player's attributes
         meta:set_string("guild", guild_name)
@@ -198,8 +207,9 @@ minetest.register_chatcommand("guild_info", {
 
         local member_list = table.concat(guild_data.members, ", ")
 
-        local guild_info = string.format("Guild Name: %s\nMembers: %s\nColor: %s",
+        local guild_info = string.format("Guild Name: %s\nOwner: %s\nMembers: %s\nColor: %s",
         guild_name,
+        guild_data.owner,
         (member_list ~= "" and member_list or "None"),
         guild_data.color
     )
@@ -228,3 +238,32 @@ minetest.register_chatcommand("remove_guild", {
     end,
 })
 
+-- Chat command to change the color of a guild
+minetest.register_chatcommand("guild_color", {
+    params = "<guild_name> <new_color>",
+    description = "Change the color of a guild",
+    func = function(name, param)
+        local guild_name, new_color = param:match("(%S+)%s*(%S*)")
+        if not guild_name or not new_color then
+            return false, "Invalid parameters. Usage: /guild_color <guild_name> <new_color>"
+        end
+
+        local guild_data = guilds.get_guild(guild_name)
+        if not guild_data or guild_data.owner ~= name then
+            return false, "You are not the owner of the guild or the guild does not exist"
+        end
+
+        -- Check if the new color is a valid hexadecimal color code
+        if new_color ~= "" and not new_color:match("^#%x%x%x%x%x%x$") then
+            return false, "Invalid color format. Please use a valid hexadecimal color (e.g., #57F287)"
+        end
+        if not new_color then
+            new_color = guilds.color_palette[math.random(#guilds.color_palette)]
+        end
+
+        -- Update the guild color
+        guilds.update_guild(guild_name, {color = new_color})
+
+        return true, "Color of guild '" .. guild_name .. "' has been changed to '" .. new_color .. "'"
+    end,
+})

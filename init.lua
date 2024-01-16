@@ -3,6 +3,11 @@ local MP = minetest.get_modpath("guilds_redo")
 guilds = {
     -- default_color for the new guilds
     default_color = minetest.settings:get("guilds.default_color") or "#57F287",
+    color_palette = {
+        "#1f78b4", "#33a02c", "#e31a1c", "#ff7f00",
+        "#6a3d9a", "#a6cee3", "#b2df8a", "#fb9a99",
+        "#fdbf6f", "#cab2d6", "#ffff99", "#b15928"
+    },
     -- xp costs for the mod
 	join_xp = tonumber(minetest.settings:get("guilds.join_xp") or 50000),
 	create_xp = tonumber(minetest.settings:get("guilds.create_xp") or 200000),
@@ -29,7 +34,7 @@ minetest.register_on_chat_message(function(name, message)
 
         -- Ensure the guild data exists before accessing it
         if guild_data then
-            local guild_prefix = "{ " .. current_guild .. " }"
+            local guild_prefix = " {" .. current_guild .. "}"
             guild_prefix = minetest.colorize(guild_data.color, guild_prefix)
             prefixed_msg = guild_prefix .. prefixed_msg
         else
