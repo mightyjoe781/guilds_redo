@@ -2,8 +2,13 @@
 local storage = minetest.get_mod_storage()
 
 -- Ensure that the 'guilds' key exists in mod storage
-if not storage:get_string("guilds") then
+-- a alternative is to export as json and load on every start
+if not storage:get_string("guilds") or storage:get_string("guilds") == "" then
     storage:set_string("guilds", minetest.serialize({}))
+    print("[guilds_redo] Found empty or incorrect guilds storage")
+else
+    -- print(minetest.serialize(guilds))
+    print("[guilds_redo] Total Guilds found: "..#guilds)
 end
 
 -- Function to get all guilds
@@ -15,6 +20,7 @@ end
 function guilds.save_data(tname,table)
     return storage:set_string(tname, minetest.serialize(table))
 end
+
 
 -- Function to get all guild names
 function guilds.get_all_guilds()
@@ -29,9 +35,14 @@ function guilds.get_all_guilds()
 end
 
 -- create a specific guild by name
-function guilds.create_guild(gname, members)
+function guilds.create_guild(gname, members, color)
+
+    -- Check if a valid color is passed
+    if color and not color:match("^#%x%x%x%x%x%x$") then
+        color = "#57F287"
+    end
     -- create a new guild table
-    guilds.save_data(gname, members)
+    guilds.save_data(gname, {members = members, color = color or "#57F287"})
     -- add to the guilds table
     local glist = guilds.get_data("guilds")
     glist[gname] = true
@@ -42,7 +53,7 @@ end
 function guilds.get_guild(gname)
     -- check if a valid guild
     local glist = guilds.get_data("guilds")
-    if not glist[gname] then
+    if not glist or not glist[gname] then
         return false
     end
     return guilds.get_data(gname)
@@ -51,7 +62,7 @@ end
 -- Function to remove a guild by name
 function guilds.remove_guild(gname)
     local glist = guilds.get_data("guilds")
-    if not glist[gname] then
+    if not glist and not glist[gname] then
         return false
     end
     -- Remove the guild from the guilds list
@@ -66,7 +77,7 @@ end
 -- Function to update a guild
 function guilds.update_guild(gname, newGuildData)
     local glist = guilds.get_data("guilds")
-    if not glist[gname] then
+    if not glist and not glist[gname] then
         return false  -- Guild not found
     end
     -- Update the guild data
@@ -80,7 +91,7 @@ function guilds.add_member(gname, member)
     if not guildData then
         return false  -- Guild not found
     end
-    table.insert(guildData, member)
+    table.insert(guildData.members, member)
     guilds.save_data(gname, guildData)
     return true  -- Member successfully added
 end
@@ -91,15 +102,15 @@ function guilds.remove_member(gname, member)
     if not guildData then
         return false  -- Guild not found
     end
-    local index = table.indexof(guildData, member)
+    local index = table.indexof(guildData.members, member)
     if not index then
         return false  -- Member not found in the guild
     end
-    table.remove(guildData, index)
+    table.remove(guildData.members, index)
     guilds.save_data(gname, guildData)
 
     -- Check if the guild is now empty, if so, delete the guild
-    if #guildData == 0 then
+    if #guildData.members == 0 then
         guilds.remove_guild(gname)
     end
 

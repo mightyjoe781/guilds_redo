@@ -54,7 +54,7 @@ minetest.register_chatcommand("leave_guild", {
 
         local meta = player:get_meta()
         local current_guild = meta:get_string("guild")
-        if not current_guild then
+        if not current_guild or current_guild == "" then
             return false, "You are not a member of any guild"
         end
 
@@ -90,7 +90,7 @@ minetest.register_chatcommand("gm", {
         end
 
         local online_members = {}
-        for _, member in ipairs(guild_data) do
+        for _, member in ipairs(guild_data.members) do
             local member_player = minetest.get_player_by_name(member)
             if member_player then
                 table.insert(online_members, member)
@@ -116,7 +116,9 @@ minetest.register_chatcommand("create_guild", {
             return false, "Player not found"
         end
 
-        local guild_name = param:trim()
+        local guild_name, color = param:match("(%S+)%s*(%S*)")
+        color = color ~= "" and color or nil
+
         local meta = player:get_meta()
         local current_guild = meta:get_string("guild")
         if current_guild and current_guild ~= "" then
@@ -127,6 +129,11 @@ minetest.register_chatcommand("create_guild", {
 
         if guild_data then
             return false, "Guild name already exists"
+        end
+
+        -- Check if a valid color is passed
+        if color and not color:match("^#%x%x%x%x%x%x$") then
+            return false, "Invalid color format. Please use a valid hexadecimal color (e.g., #57F287)"
         end
 
 
@@ -143,7 +150,7 @@ minetest.register_chatcommand("create_guild", {
         end
 
         -- Create the guild
-        guilds.create_guild(guild_name, {name})
+        guilds.create_guild(guild_name, {name}, color)
 
         -- Update player's attributes
         meta:set_string("guild", guild_name)
@@ -191,9 +198,9 @@ minetest.register_chatcommand("guild_info", {
             return false, "Guild not found"
         end
 
-        local member_list = table.concat(guild_data, ", ")
+        local member_list = table.concat(guild_data.members, ", ")
 
-        return true, "Guild Name: " .. guild_name .. "\nMembers: " .. (member_list ~= "" and member_list or "None")
+        return true, "Guild Name: " .. guild_name .. "\nMembers: " .. (member_list ~= "" and member_list or "None").. "\nColor: "..guild_data.color
     end,
 })
 -- Chat command to remove a guild

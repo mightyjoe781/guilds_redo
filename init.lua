@@ -22,11 +22,12 @@ minetest.register_on_chat_message(function(name, message)
         -- Ensure the guild data exists before accessing it
         if guild_data then
             local guild_prefix = "[ " .. current_guild .. " ]"
+            guild_prefix = minetest.colorize(guild_data.color, guild_prefix)
             minetest.chat_send_all(guild_prefix .. " <" .. name .. "> " .. message)
             return true
         else
             -- If guild data is nil, clear the player's attribute
-            player:set_attribute("guild", nil)
+            meta:set_string("guild", "")
         end
     end
 
