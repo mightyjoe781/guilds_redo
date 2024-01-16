@@ -150,7 +150,7 @@ minetest.register_chatcommand("create_guild", {
         end
 
         -- Create the guild
-        guilds.create_guild(guild_name, {name}, color)
+        guilds.create_guild(guild_name, name, color)
 
         -- Update player's attributes
         meta:set_string("guild", guild_name)

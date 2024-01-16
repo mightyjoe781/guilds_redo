@@ -35,14 +35,14 @@ function guilds.get_all_guilds()
 end
 
 -- create a specific guild by name
-function guilds.create_guild(gname, members, color)
+function guilds.create_guild(gname, owner, color)
 
     -- Check if a valid color is passed
     if color and not color:match("^#%x%x%x%x%x%x$") then
         color = "#57F287"
     end
-    -- create a new guild table
-    guilds.save_data(gname, {members = members, color = color or "#57F287"})
+    -- create a new guild table, with owner being the first member
+    guilds.save_data(gname, {owner = owner, leader = owner, members = {owner}, color = color or "#57F287"})
     -- add to the guilds table
     local glist = guilds.get_data("guilds")
     glist[gname] = true
