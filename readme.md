@@ -10,6 +10,7 @@
 
 * guild by default modifies the chat so other mods that have similar behaviour might interfere
 
+NOTE : This mod support following mods : censor (mightyjoe781), ranks (octacian), xp_redo (mtmods)
 
 TODO :
 

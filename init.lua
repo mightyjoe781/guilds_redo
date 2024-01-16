@@ -21,6 +21,7 @@ minetest.register_on_chat_message(function(name, message)
     end
     local meta = player:get_meta()
     local current_guild = meta:get_string("guild")
+    local prefixed_msg = " <" .. name .. "> " .. message
 
     -- If the player is in a guild, modify the chat message
     if current_guild then
@@ -28,16 +29,41 @@ minetest.register_on_chat_message(function(name, message)
 
         -- Ensure the guild data exists before accessing it
         if guild_data then
-            local guild_prefix = "[ " .. current_guild .. " ]"
+            local guild_prefix = "{ " .. current_guild .. " }"
             guild_prefix = minetest.colorize(guild_data.color, guild_prefix)
-            minetest.chat_send_all(guild_prefix .. " <" .. name .. "> " .. message)
-            return true
+            prefixed_msg = guild_prefix .. prefixed_msg
         else
             -- If guild data is nil, clear the player's attribute
             meta:set_string("guild", "")
         end
     end
+    if minetest.get_modpath("ranks") then
+        -- disable the chat modifier in ranks mod
+        -- ranks.prefix_chat = false
+        local rank = ranks.get_rank(name)
+        if rank ~= nil then
+            local def = ranks.get_def(rank)
+            if def and def.prefix then
+                local colour = guilds.fix_color(def.colour)
+                local rank_prefix = minetest.colorize(colour, def.prefix)
+                prefixed_msg =rank_prefix .. prefixed_msg
+            end
+        end
+    end
+    if minetest.get_modpath("censor") then
+        prefixed_msg = censor.corrected_message(name,prefixed_msg)
+        -- if player kicked then no need to broadcast their message
+        -- censor mod design bug + mention highlight is not working
+        -- i should really redesign that mod :) as an api
+        -- this is not working :) maybe make it a hook who knows lol
+        if censor.kick(name) then
+            minetest.log("action", "CHAT: ".."<"..name.."> "..message)
+            return true
+        end
+    end
+    minetest.chat_send_all(prefixed_msg)
+    minetest.log("action", "CHAT: ".."<"..name.."> "..message)
 
     -- If the player is not in a guild, send the chat message as usual
-    return false
+    return true
 end)

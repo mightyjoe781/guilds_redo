@@ -5,7 +5,9 @@ exclude_files = {".luacheckrc"}
 globals = {
 	"minetest",
 	"prismo",
-	"default"
+	"default",
+	"censor",
+	"ranks"
 }
 
 read_globals = {

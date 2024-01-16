@@ -116,3 +116,14 @@ function guilds.remove_member(gname, member)
 
     return true  -- Member successfully removed
 end
+
+-- get color api
+function guilds.fix_color(colour)
+	if type(colour) == "table" and minetest.rgba then
+		return minetest.rgba(colour.r, colour.g, colour.b, colour.a)
+	elseif type(colour) == "string" then
+		return colour
+	else
+		return "#ffffff"
+	end
+end
